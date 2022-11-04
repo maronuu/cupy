@@ -251,6 +251,63 @@ def logspace(start, stop, num=50, endpoint=True, base=10.0, dtype=None,
     return _core.power(base, y).astype(dtype)
 
 
+def geomspace(start, stop, num=50, endpoint=True, dtype=None, axis=0):
+    """Return numbers spaced evenly on a log scale (a geometric progression).
+
+    This is similar to :func:`cupy.logspace`, but with endpoints 
+    specified directly. Each output sample is a constant multiple of the previous.
+
+    Args:
+        start: Start of the interval.
+        stop: End of the interval.
+        num: Number of elements.
+        endpoint (bool): If ``True``, the stop value is included as the last
+            element. Otherwise, the stop value is omitted.
+        dtype: Data type specifier. It is inferred from the start and stop
+            arguments by default.
+        axis (int):  The axis in the result to store the samples.  Relevant
+            only if start or stop are array-like.  By default ``0``, the
+            samples will be along a new axis inserted at the beginning.
+            Use ``-1`` to get an axis at the end.
+    Returns:
+        cupy.ndarray: The 1-D array of ranged values.
+
+    .. seealso:: :func:`numpy.geomspace`
+
+    """
+    start = cupy.asanyarray(start)
+    stop = cupy.asanyarray(stop)
+    if cupy.any(start == 0) or cupy.any(stop == 0):
+        raise ValueError("Geometric sequence cannot include zero")
+
+    # dtype inference
+    dt = cupy.result_type(start, stop, float(num), cupy.zeros((), dtype))
+    if dtype is None:
+        dtype = dt
+    else:
+        # cast cupy type
+        dtype = cupy.dtype(dtype)
+
+    start = cupy.asarray(start, dtype=dt)
+    stop = cupy.asarray(stop, dtype=dt)
+
+    log_start = cupy.log10(start)
+    log_stop = cupy.log10(stop)
+
+    result = cupy.logspace(log_start, log_stop, num=num,
+                           endpoint=endpoint, base=10.0, dtype=dtype)
+    # result[0] == start and result[-1] == stop should be guaranteed
+    if num > 0:
+        result[0] = start
+        if num > 1 and endpoint:
+            result[-1] = stop
+
+    if axis != 0:
+        result = cupy.moveaxis(result, 0, axis)
+
+    return cupy.asarray(result, dtype=dtype)
+
+
 def meshgrid(*xi, **kwargs):
     """Return coordinate matrices from coordinate vectors.
 

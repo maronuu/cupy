@@ -49,6 +49,7 @@ Numerical ranges
    :toctree: generated/
 
    arange
+   geomspace
    linspace
    logspace
    meshgrid

@@ -32,7 +32,7 @@ def skip_int_equality_before_numpy_1_20(names=('dtype',)):
 
 @testing.gpu
 class TestRanges(unittest.TestCase):
-
+    # cupy.arange
     @testing.for_all_dtypes(no_bool=True)
     @testing.numpy_cupy_array_equal()
     def test_arange(self, xp, dtype):
@@ -90,6 +90,7 @@ class TestRanges(unittest.TestCase):
     def test_arange_negative_size(self, xp):
         return xp.arange(3, 1)
 
+    # cupy.linspace
     @testing.for_all_dtypes(no_bool=True)
     @testing.numpy_cupy_array_equal()
     def test_linspace(self, xp, dtype):
@@ -292,6 +293,37 @@ class TestRanges(unittest.TestCase):
         start = xp.array([0, 2], dtype=dtype_range)
         stop = xp.array([2, 0], dtype=dtype_range)
         return xp.logspace(start, stop, num=5, dtype=dtype_out, axis=1)
+
+    # cupy.geomspace
+    def test_geomspace_default_num(self):
+        assert len(cupy.geomspace(1, 1e6)) == 50
+
+    def test_geomspace_endpoints_equal(self):
+        res = cupy.geomspace(95, 213213, num=100)
+        assert cupy.allclose(res[0], cupy.asarray(95))
+        assert cupy.allclose(res[-1], cupy.asarray(213213))
+
+    @testing.numpy_cupy_array_equal()
+    def test_geomspace_endpoint_false(self, xp):
+        return xp.geomspace(1, 1e6, num=4, endpoint=False)
+
+    @testing.numpy_cupy_array_equal()
+    def test_geomspace_basic1(self, xp):
+        return xp.geomspace(1, 1000, 4)
+
+    @testing.numpy_cupy_array_equal()
+    def test_geomspace_basic2(self, xp):
+        return xp.geomspace(8, 2, num=3)
+
+    # @testing.numpy_cupy_array_equal()
+    # def test_geomspace_complex1(self, xp):
+    #     return
+    #     # return xp.geomspace(-1, -100, num=3)
+
+    # @testing.numpy_cupy_array_equal()
+    # def test_geomspace_complex2(self, xp):
+    #     return
+    #     # return xp.geomspace(-100, -1, num=3)
 
 
 @testing.parameterize(
