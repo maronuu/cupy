@@ -300,8 +300,8 @@ class TestRanges(unittest.TestCase):
 
     def test_geomspace_endpoints_equal(self):
         res = cupy.geomspace(95, 213213, num=100)
-        assert cupy.allclose(res[0], cupy.asarray(95))
-        assert cupy.allclose(res[-1], cupy.asarray(213213))
+        assert cupy.allclose(res[0], 95)
+        assert cupy.allclose(res[-1], 213213)
 
     @testing.numpy_cupy_array_equal()
     def test_geomspace_endpoint_false(self, xp):
@@ -315,15 +315,49 @@ class TestRanges(unittest.TestCase):
     def test_geomspace_basic2(self, xp):
         return xp.geomspace(8, 2, num=3)
 
-    # @testing.numpy_cupy_array_equal()
-    # def test_geomspace_complex1(self, xp):
-    #     return
-    #     # return xp.geomspace(-1, -100, num=3)
+    @testing.numpy_cupy_array_equal()
+    def test_geomspace_complex1(self, xp):
+        return xp.geomspace(-1, -100, num=3)
 
-    # @testing.numpy_cupy_array_equal()
-    # def test_geomspace_complex2(self, xp):
-    #     return
-    #     # return xp.geomspace(-100, -1, num=3)
+    @testing.numpy_cupy_array_equal()
+    def test_geomspace_complex2(self, xp):
+        return xp.geomspace(-100, -1, num=3)
+
+    @testing.numpy_cupy_array_almost_equal()
+    def test_geomspace_complex3(self, xp):
+        return xp.geomspace(1j, 16j, num=5)
+    
+    @testing.numpy_cupy_array_almost_equal()
+    def test_geomspace_complex4(self, xp):
+        return xp.geomspace(-4j, -324j, num=5)
+    
+    @testing.numpy_cupy_array_almost_equal()
+    def test_geomspace_complex5(self, xp):
+        return xp.geomspace(1+1j, 1000+1000j, num=4)
+    
+    @testing.numpy_cupy_array_almost_equal()
+    def test_geomspace_complex6(self, xp):
+        return xp.geomspace(-1+1j, -1000+1000j, num=4)
+
+    @testing.numpy_cupy_array_almost_equal()
+    def test_geomspace_complex7(self, xp):
+        return xp.geomspace(-1, 1, num=3, dtype=complex)
+
+    @testing.numpy_cupy_array_almost_equal()
+    def test_geomspace_complex8(self, xp):
+        return xp.geomspace(0+3j, -3+0j, 3)
+    
+    @testing.numpy_cupy_array_almost_equal()
+    def test_geomspace_complex9(self, xp):
+        return xp.geomspace(0+3j, 3+0j, 3)
+    
+    @testing.numpy_cupy_array_almost_equal()
+    def test_geomspace_complex10(self, xp):
+        return xp.geomspace(-3+0j, 0-3j, 3)
+    
+    @testing.numpy_cupy_array_almost_equal()
+    def test_geomspace_complex11(self, xp):
+        return xp.geomspace(0+3j, -3+0j, 3)
 
 
 @testing.parameterize(
