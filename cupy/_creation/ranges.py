@@ -4,6 +4,7 @@ import numpy
 
 import cupy
 from cupy import _core
+from cupy._logic.type_test import iscomplex
 
 
 def arange(start, stop=None, step=1, dtype=None):
@@ -290,6 +291,22 @@ def geomspace(start, stop, num=50, endpoint=True, dtype=None, axis=0):
 
     start = cupy.asarray(start, dtype=dt)
     stop = cupy.asarray(stop, dtype=dt)
+    
+    out_sign = cupy.ones(cupy.broadcast(start, stop).shape, dt)
+    
+    if cupy.iscomplex(dt):
+        all_imag = (start.real == 0.) & (stop.real == 0.)
+        if cupy.any(all_imag):
+            start[all_imag] = start[all_imag].imag
+            stop[all_imag] = stop[all_imag].imag
+            out_sign[all_imag] = 1j
+
+    # negative case
+    to_be_negated = (cupy.sign(start) == -1) & (cupy.sign(stop) == -1)
+    if cupy.any(to_be_negated):
+        cupy.negative(start[to_be_negated], out=start[to_be_negated])
+        cupy.negative(stop[to_be_negated], out=stop[to_be_negated])
+        cupy.negative(out_sign[to_be_negated], out=out_sign[to_be_negated])
 
     log_start = cupy.log10(start)
     log_stop = cupy.log10(stop)
@@ -302,6 +319,8 @@ def geomspace(start, stop, num=50, endpoint=True, dtype=None, axis=0):
         if num > 1 and endpoint:
             result[-1] = stop
 
+    result = out_sign * result
+    
     if axis != 0:
         result = cupy.moveaxis(result, 0, axis)
 
